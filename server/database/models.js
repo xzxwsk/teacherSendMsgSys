@@ -1,0 +1,21 @@
+module.exports = { 
+    user:{ 
+		account:{type:String,required:true},
+        name:{type:String,required:true},
+        password:{type:String,required:true},
+		userNo:{type:String,required:true},
+		phone:{type:String,required:true},
+		role:{type:String,required:true},
+		group:{type:Array,default:[]},
+		msg:{type:Array,default:[]}
+    },
+	message:{ 
+        msg:{type:String,required:true},
+        dataTime:{type:Date,default:Date.now},
+        userList:{type:Array,required:true}
+    },
+	groupList:{
+        groupName:{type:String,required:true},
+        userList:{type:Array,default:[]}
+    }
+};

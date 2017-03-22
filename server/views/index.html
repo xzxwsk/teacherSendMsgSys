@@ -1,0 +1,40 @@
+<% include header.html %>
+<h1><%= title %></h1>
+<p>Welcome to <%= title %></p>
+
+<p><a href="/login">登录 </a>
+<a href="/register">   注册</a></p>
+<div id="testCon">测试div</div>
+<!--
+<script type="text/javascript" src="javascripts/promise-1.0.0.min.js"></script>
+<script type="text/javascript" src="javascripts/client.js"></script>
+-->
+<script type="text/javascript">
+alert(window.parent);
+/*
+var storage = new CrossStorageClient('http://localhost:3000/hub');
+var testObj = {
+        "userName": "xixi",
+        toString: function () {
+            return "userName:'xixi'";
+        }
+    };
+console.log(JSON.stringify(true));
+var setKeys = function () {
+  return storage.set('TC', true).then(function() {
+    return storage.set('key2', 'bar');
+  });
+};
+storage.onConnect()
+.then(setKeys)
+.then(function() {
+  return storage.get('TC');
+})
+.then(function(res) {
+  console.log(res); // 'foo'
+})['catch'](function(err) {
+  console.log(err);
+});
+*/
+</script>
+<% include footer.html %>
