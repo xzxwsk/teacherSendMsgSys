@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学生信息管理系统</title>
+<link rel="stylesheet" type="text/css" href="js/H-ui/lib/Hui-iconfont/1.0.6/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="js/H-ui/static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<header class="navbar-wrapper">
+	<div class="navbar navbar-black">
+		<div class="container cl">
+			<span class="logo navbar-logo-m f-l mr-10">欢迎您，<span id="roleDivMov"></span> : <span id="nameDivMov"></span>, <a href="#" id="loginBtn" class="txt_white">退出</a></span>
+			<a aria-hidden="false" class="nav-toggle Hui-iconfont" href="javascript:;">&#xe667;</a>
+			<nav class="nav navbar-nav nav-collapse" role="navigation" id="Hui-navbar">
+				<ul class="cl hidden" id="teacherMenu">
+					<li class="current"><a href="/www/">首页</a></li>
+					<li><a href="/www/manageGroupPerson.html">群体管理</a></li>
+					<li><a href="/www/sendMessageGroup.html">发送消息</a></li>
+				</ul>
+				<ul class="cl hidden" id="studentMenu">
+					<li class="current"><a href="/www/">首页</a></li>
+					<li><a href="/www/personReceiveMessage.html">接收消息</a></li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</header>
+
+<div class="welcome"><a href="javascript:void(0);"><p>学生信息管理</p></a></div>
+
+<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="js/H-ui/static/h-ui/js/H-ui.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+$(function(){
+	$(".nav-toggle").click(function(e){
+		e.preventDefault();
+		$(this).next(".nav-collapse").toggleClass("open");
+	});
+	
+	//判断是否登录
+	util.postData(0, interfacePath+"user/getUserInfo", null, function(res){
+		if(0 == res.status){
+			alert(res.error);
+			window.location = "login.html?url=index.html";
+		}else if(-1 == res.status){
+			alert("连接超时，或网络错误！");
+			window.location = "login.html?url=index.html";
+		}else if("student" == res.data.role){
+			$("#studentMenu").removeClass("hidden");
+			$("#roleDivMov").text(res.data.role);
+			$("#nameDivMov").text(res.data.name);
+		}else{
+			$("#teacherMenu").removeClass("hidden");
+			$("#roleDivMov").text(res.data.role);
+			$("#nameDivMov").text(res.data.name);
+		}
+	});
+	
+	//注销
+	$("#loginBtn").click(function(){
+		util.postData(0, interfacePath+"user/logout", null, function(res){
+			if(0 == res.status){
+				alert(res.error);
+			}else if(-1 == res.status){
+				alert("连接超时，或网络错误！");
+			}else{
+				alert(res.msg);
+				window.location = "login.html";
+			}
+		});
+	});
+});
+</script>
+</body>
+</html>

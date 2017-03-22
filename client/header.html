@@ -1,0 +1,41 @@
+<div class="navbar navbar-black">
+	<div class="container cl">
+		<span class="logo navbar-logo-m f-l mr-10">欢迎您，<span id="roleDivMov"></span> : <span id="nameDivMov"></span></span>
+		<a aria-hidden="false" class="nav-toggle Hui-iconfont" href="javascript:;">&#xe667;</a>
+		<nav class="nav navbar-nav nav-collapse" role="navigation" id="Hui-navbar">
+			<ul class="cl hidden" id="teacherMenu">
+				<li><a href="/www/">首页</a></li>
+				<li class="stu_menu"><a href="/www/personReceiveMessage.html">消息查看</a></li>
+				<li class="teacher_menu"><a href="/www/manageGroupPerson.html">群体管理</a></li>
+				<li class="teacher_menu"><a href="/www/sendMessageGroup.html">发送消息</a></li>
+				<li><a href="#" id="logoutBtn" class="txt_white">退出</a></li>
+			</ul>
+		</nav>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$("header").on("click", ".nav-toggle", function(e){
+		e.preventDefault();
+		$(this).next(".nav-collapse").toggleClass("open");
+	});
+	$("#logoutBtn").click(function(e){
+		e.preventDefault();
+		var me = $(this);
+		util.postData(0, interfacePath+"user/logout", null, function(res){
+			if(0 == res.status){
+				alert(res.error);
+			}else if(-1 == res.status){
+				alert("连接超时，或网络错误！");
+			}if(1 ==res.status){
+				alert("注销成功！");
+				window.location = "login.html";
+//				var event = document.createEvent('MouseEvents');
+//				event.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+//				me[0].dispatchEvent(event);
+			}
+		});
+	});
+});
+</script>

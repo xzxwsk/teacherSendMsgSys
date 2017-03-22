@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学生信息管理系统-消息群体人员管理</title>
+<link rel="stylesheet" type="text/css" href="js/H-ui/lib/Hui-iconfont/1.0.6/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="js/H-ui/static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<script type="text/javascript">
+var basePath="./";	
+</script>
+</head>
+<body>
+<header class="navbar-wrapper"></header>
+
+<div class="panel panel-secondary">
+    <div class="panel-header text-c">消息群体人员管理</div>
+</div>
+<form action="" method="post" class="form form-horizontal" id="demoform-1">
+	<div class="container">
+		<div class="row cl hide">
+	    	<label class="form-label col-2 col-sm-2">&nbsp;</label>
+	    	<div class="formControls col-8 col-sm-8">
+	    		<div class="Huialert Huialert-danger radius" id="error"><i class="icon Hui-iconfont Hui-iconfont-close"></i><span></span></div>
+	    	</div>
+	    </div>
+	    <div class="row cl">
+	        <label class="form-label col-2 col-sm-2">&nbsp;</label>
+	        <div class="formControls col-8 col-sm-8">
+	            <input type="text" class="input-text radius" value="" placeholder="请输入查询群组条件1" id="cont1" />
+	        </div>
+	    </div>
+		<div class="row cl">
+	        <label class="form-label col-2 col-sm-2">&nbsp;</label>
+	        <div class="formControls col-8 col-sm-8">
+	        	<div class="panel panel-secondary">
+	        		<div class="panel-header">符合条件的群体列表</div>
+					<div class="panel-body"><ul id="groupList"></ul></div>
+				</div>
+	        </div>
+	    </div>
+	    <div class="row cl">
+	        <label class="form-label col-2 col-sm-2">&nbsp;</label>
+	        <div class="formControls col-8 col-sm-8">
+	        	<div class="panel panel-secondary">
+	        		<div class="panel-header">请选择添加到群体中的人员，下列为未加入该群组的人员</div>
+					<div class="panel-body"><select id="personList" multiple="multiple" class="col-12"></select></div>
+				</div>
+	        </div>
+	    </div>
+	    <div class="row cl">
+	        <div class="col-8 col-sm-8 col-offset-2 col-sm-offset-2">
+	            <input type="button" value="⇩" class="btn btn-default size-L radius" id="addGroup" /> 
+	            <input type="button" value="⇧" class="btn btn-default size-L radius sd" id="removeGroup" /> 
+	        </div>
+	    </div>
+	    <div class="row cl">
+	        <label class="form-label col-2 col-sm-2">&nbsp;</label>
+	        <div class="formControls col-8 col-sm-8">
+	        	<div class="panel panel-secondary">
+	        		<div class="panel-header">当前群体已加入人员</div>
+					<div class="panel-body"><select id="personOfList" multiple="multiple" class="col-12"></select></div>
+				</div>
+	        </div>
+	    </div>
+	    <div class="row cl">
+	        <div class="col-8 col-sm-8 col-offset-2 col-sm-offset-2">
+	            <input type="submit" value="确定" class="btn btn-secondary size-L radius" /> &nbsp;
+	            <input type="reset" value="取消" class="btn btn-default size-L radius" /> 
+	        </div>
+	    </div>
+	    <br/>
+	    <!--<div class="row cl">
+	        <div class="col-8 col-sm-8 col-offset-2 col-sm-offset-2">
+	    		<a class="txt_white" href="addGroup.html"><u>增加群体</u></a>
+	    		<a class="mgl20 txt_white" href="messageGroup.html"><u>发送消息</u></a>
+	    		<a class="mgl20 txt_white" href="register.html"><u>注册帐号</u></a>
+	    	</div>
+	    </div>-->
+	</div>
+</form>
+
+<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="js/H-ui/static/h-ui/js/H-ui.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+$(function(){	
+	$("header").load("header.html");
+	
+	//判断是否登录
+	util.postData(0, interfacePath+"user/getUserInfo", null, function(res){
+		if(0 == res.status){
+			alert(res.error);
+			window.location = "login.html?url=manageGroupPerson.html";
+		}else if(-1 == res.status){
+			alert("连接超时，或网络错误！");
+			window.location = "login.html?url=manageGroupPerson.html";
+		}else if("student" == res.data.role){
+			alert("您无权限访问该页面！");
+			window.location = "index.html";
+		}else{
+			$("#teacherMenu").removeClass("hidden");
+			$("#roleDivMov").text(res.data.role);
+			$("#nameDivMov").text(res.data.name);
+			$("header .stu_menu").hide();
+			
+			//列出群体列表
+			util.postData(1, interfacePath+"getGroupList", null, function(res){
+				if(res.status){
+					$("#error").closest(".row").addClass("hide");
+					setGroupList(res.data);
+				}else{
+					me[0].reset();
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text(res.error);
+				}
+			});
+			//列出未加入人员列表
+			util.postData(1, interfacePath+"getPersonList", null, function(res){
+				console.log(res);
+				if(res.status){
+					$("#error").closest(".row").addClass("hide");
+					setPersonList(res.data, $("#personList"), true);
+				}else{
+					me[0].reset();
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text(res.error);
+				}
+			});
+			//列出已加入人员列表
+			util.postData(1, interfacePath+"getPersonOfList", null, function(res){
+				console.log(res);
+				if(res.status){
+					$("#error").closest(".row").addClass("hide");
+					setPersonList(res.data, $("#personOfList"), true);
+				}else{
+					me[0].reset();
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text(res.error);
+				}
+			});
+		}
+	});
+	
+	//搜索群体列表
+	$("#cont1").keyup(function(){
+		var cont1 = $(this).val();
+		util.postData(1, interfacePath+"getGroupList", {condition: cont1}, function(res){
+			if(res.status){
+				$("#error").closest(".row").addClass("hide");				
+				setGroupList(res.data);
+			}else{
+				me[0].reset();
+				$("#error").closest(".row").removeClass("hide");
+				$("#error").children("span").text(res.error);
+			}
+		});
+		
+		return false;
+	});
+	
+	//选择群体
+	$("#groupList").on("click", "li", function(){
+		$("#groupList li").removeClass("sel");
+		$(this).toggleClass("sel");
+		if($(this).hasClass("sel")){
+			var id = $(this).data("id");
+			//刷新不属于该群组的人员
+			util.postData(1, interfacePath+"getPersonList", {groupId: id}, function(res){
+				if(0 == res.status){
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text(res.error);
+				}else if(-1 == res.status){
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text("连接超时，或网络错误！");
+				}else{
+					setPersonList(res.data, $("#personList"));
+					$("#error").closest(".row").addClass("hide");
+				}
+			});
+			//刷新属于该群组的人员
+			util.postData(1, interfacePath+"getPersonOfList", {groupId: id}, function(res){
+				if(0 == res.status){
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text(res.error);
+				}else if(-1 == res.status){
+					$("#error").closest(".row").removeClass("hide");
+					$("#error").children("span").text("连接超时，或网络错误！");
+				}else{
+					setPersonList(res.data, $("#personOfList"));
+					$("#error").closest(".row").addClass("hide");
+				}
+			});
+		}
+	});
+	
+	//添加移除人员
+	$("#removeGroup").click(function(){
+		var added = $("#personOfList option:checked");//已选
+		added.appendTo($("#personList"));
+		$("#personList option").prop("selected",false);
+	});
+	$("#addGroup").click(function(){
+		var unAdd = $("#personList option:checked");//未选
+		unAdd.appendTo($("#personOfList"));
+		$("#personOfList option").prop("selected",false);
+	});
+	
+	//确定，把选中的群体ID插入所选人员所属群组
+	$("#demoform-1").submit(function(){
+		var me = $(this);
+		
+		var personSel = $("#personOfList option").map(function(){
+			return $(this).val();
+		});
+		var personArr = personSel.get().join(",");
+		if($("#groupList .sel").length<1){
+			$("#error").closest(".row").removeClass("hide");
+			$("#error").children("span").text("您还未选择群组，请选择后再确定");
+			return false;
+		}
+		util.postData(1, interfacePath+"setPersonOfGroup", {
+			groupId:$("#groupList .sel").data("id"), 
+			personSelLs: personArr
+		}, function(res){
+			if(0 == res.status){
+				$("#error").closest(".row").removeClass("hide");
+				$("#error").children("span").text(res.error);
+			}else if(-1 == res.status){
+				$("#error").closest(".row").removeClass("hide");
+				$("#error").children("span").text("连接超时，或网络错误！");
+			}else{
+				$("#error").closest(".row").addClass("hide");
+				alert("修改群组人员成功，可继续添加");
+				me[0].reset();
+			}
+		});
+		return false;
+	});
+});
+
+var setGroupList = function(data){
+	if(data.length>0){
+		var html = "";
+		$.each(data, function(i, val){
+			var str = "";
+			str = "<li data-id='"+val._id+"'>"+val.groupName+"</li>";
+			html += str;
+		});
+		$("#groupList").html(html);
+		$("#groupList").closest(".row").removeClass("hidden");
+	}else{
+		$("#groupList").closest(".row").addClass("hidden");
+	}
+};
+
+var setPersonList = function(data, obj, isInit){
+	if(data.length>0){
+		var html = "";
+		$.each(data, function(i, val){
+			var str = "";
+			str = "<option value='"+val._id+"'>"+val.name+"</option>";
+			html += str;
+		});
+		obj.html(html);
+		obj.closest(".row").removeClass("hidden");
+	}else{
+		obj.empty();
+//		if(isInit){
+//			obj.closest(".row").addClass("hidden");
+//		}
+	}
+};
+</script>
+</body>
+</html>

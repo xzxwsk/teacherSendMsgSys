@@ -1,0 +1,65 @@
+body{display:none;font-size:0.35rem;background: #0066CC;}
+a, a:hover{text-decoration: none;}
+
+.mgt10{margin-top: 0.3rem;}
+.mgt20{margin-top: 0.6rem;}
+.mgl5{margin-left: 0.2rem;}
+.mgl10{margin-left: 0.3rem;}
+.mgl15{margin-left: 0.4rem;}
+.mgl20{margin-left: 0.6rem;}
+.mgb20{margin-bottom: 0.6rem;}
+.h50{height: 1.5rem;}
+.h100{height: 3rem;}
+.pos_rela{position: relative;}
+
+.txt_white{color:#fff;}
+.input-text.w100per{width:100%;}
+
+.welcome{display:table;position:absolute;left:0;top:0;z-index:2;width:100%;height:100%;}
+.welcome>a{display: table-cell;vertical-align: middle;color:#333;}
+.welcome>a:focus, .welcome>a:focus:active{color:#333;}
+.welcome>a>p{background: #33FFFF;font:bold 0.6rem/3 Microsoft YaHei;text-align: center;}
+
+.loading{display:table;position:absolute;left:0;top:0;z-index:5;width:100%;height:100%;}
+.loading a{display:table-cell;text-align:center;vertical-align:middle;color:#fff;}
+.loading a:hover{cursor:default;text-decoration:none;}
+
+.sel{background:#ddd;}
+
+.panel-body{max-height:3rem;overflow-y: auto;}
+.group_list{margin:10px 0 0 2px;}
+
+label, .placeholder{font-size:0.4rem;}
+input[type="radio"], input[type="checkbox"]{width:0.35rem;height:0.35rem;}
+.panel-header{font-size:0.42rem;}
+.input-text, textarea{padding:0.12rem;height:0.75rem;font-size:0.35rem;}
+select{font-size:0.35rem;}
+.btn{vertical-align: middle;}
+.btn.size-L{padding:0.1rem 0.48rem;height:0.9rem;line-height:0.4rem;font-size:0.4rem;}
+a.btn.size-L{line-height:0.7rem;}
+.Hui-iconfont{font-size:0.5rem;}
+.Huialert{margin-bottom:0;padding:0.1rem 0.5rem 0.1rem 0.2rem;font-size:0.35rem;}
+.Huialert .Hui-iconfont{top:0;line-height: 0.75rem;}
+.navbar-wrapper{height:1.35rem !important;}
+.navbar .logo{height:1.32rem;line-height:1.32rem;}
+.navbar-nav{display:none;float:none;}
+.navbar-nav>ul>li, .navbar-nav>ul>li>a{font-size:0.4rem;line-height: 1rem;}
+.navbar-nav>ul>li>a{display:block;padding:0 15px;text-align: left;}
+.navbar-nav.open{display:block;}
+.navbar-logo-m{font-size:0.48rem;}
+.nav-toggle, a.nav-toggle{top:0.1rem;padding:0.18rem 0.33rem;font-size:0.6rem;line-height: 0.86rem;}
+.nav-collapse>ul, .nav-collapse>ul>li{display:block;width:100%;}
+
+.form .row{margin-top:0.7rem;}
+
+@media (max-width: 719px) {
+	.mgl10{margin-left: 0.15rem;}
+}	
+
+@media (max-width: 767px) {
+	.menu>li.open>.menu{position:relative;}
+	.navbar .logo{height:1.32rem !important;line-height: 1.32rem !important;}
+	.navbar-nav>ul>li, .navbar-nav>ul>li>a{line-height: 1rem !important;}
+}
+@media (min-width: 768px) {
+}	

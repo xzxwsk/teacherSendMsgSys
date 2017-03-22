@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学生信息管理系统-学生接收消息</title>
+<link rel="stylesheet" type="text/css" href="js/H-ui/lib/Hui-iconfont/1.0.6/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="js/H-ui/static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<script type="text/javascript">
+var basePath="./";	
+</script>
+</head>
+<body>
+<header class="navbar-wrapper"></header>	
+<div class="panel panel-secondary">
+    <div class="panel-header text-c">接收消息</div>
+</div>
+<form action="" method="post" class="form form-horizontal" id="demoform-1">
+	<div class="container">
+		<br/>
+		<div id="receiveMsg"></div>
+	    <br/>
+	    <div class="Huialert Huialert-danger col-6 col-sm-6 col-offset-2 col-sm-offset-2 radius hide" id="error"><i class="icon-remove"></i><span></span></div>
+	</div>
+</form>
+
+<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="js/H-ui/static/h-ui/js/H-ui.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+$(function(){	
+	$("header").load("header.html");
+	
+	//判断是否登录
+	util.postData(0, interfacePath+"user/getUserInfo", null, function(res){
+		if(0 == res.status){
+			alert(res.error);
+			window.location = "login.html?url=personReceiveMessage.html";
+		}else if(-1 == res.status){
+			alert("连接超时，或网络错误！");
+		}else if("teacher" == res.data.role){
+			alert("教师只能发送消息，学生才能接收消息！");
+			window.location = "index.html";
+		}else if(1 ==res.status){
+			$("#teacherMenu").removeClass("hidden");
+			$("#roleDivMov").text(res.data.role);
+			$("#nameDivMov").text(res.data.name);
+			$("header .teacher_menu").hide();
+			
+			//登录后，以用户id建立socket连接
+			if(window.WebSocket){
+				var ws = new WebSocket(socketPath+res.data.id);  
+			  	ws.onopen=function(){  
+			    	console.log('_connect');  
+			  	};  
+				ws.onmessage=function(e){  
+					console.log('_message');  
+			    	console.log(e.data);  
+			    	var msg = JSON.parse(e.data);
+			    	$("#receiveMsg").append('<div class="panel panel-primary mgt10">'+
+	'<div class="panel-header">"'+msg.sponsor+'" &nbsp;发来的消息 : </div>'+
+	'<div class="panel-body">'+msg.msg+'</div>'+
+'</div>');
+				};  
+				ws.onerror=function(err){  
+				    console.log('_error');  
+				    console.log(err);  
+			  	};  
+			  	ws.onclose=function(){  
+			    	console.log('_close');  
+			  	};	
+			}
+			
+			//读取未读信息
+			util.postData(0, interfacePath+"getInfoList", {id: res.data.id}, function(res){
+				if(1 ==res.status){
+					var str = "";
+					res.data.forEach(function(val){
+						var msg = JSON.parse(val.msg);
+						str += '<div class="panel panel-primary mgt10">'+
+	'<div class="panel-header">"'+msg.sponsor+'" &nbsp;发来的消息 : </div>'+
+	'<div class="panel-body">'+msg.msg+'</div>'+
+'</div>';
+					});
+					$("#receiveMsg").append(str);
+				}else{
+					alert("网络错误，请稍候再试！");
+				}
+			});
+		}
+	});
+	
+});
+</script>
+</body>
+</html>

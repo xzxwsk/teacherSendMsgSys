@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学生信息管理系统-发送消息到群体</title>
+<link rel="stylesheet" type="text/css" href="js/H-ui/lib/Hui-iconfont/1.0.6/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="js/H-ui/static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<script type="text/javascript">
+var basePath="./";	
+</script>
+</head>
+<body>
+<header class="navbar-wrapper"></header>	
+
+<div class="panel panel-secondary">
+    <div class="panel-header text-c">发送消息</div>
+</div>
+<form action="" method="post" class="form form-horizontal" id="demoform-1">
+	<div class="container">
+		<div class="row cl hide">
+	    	<label class="form-label col-2 col-sm-2">&nbsp;</label>
+	    	<div class="formControls col-8 col-sm-8">
+	    		<div class="Huialert Huialert-danger radius" id="error"><i class="icon Hui-iconfont Hui-iconfont-close"></i><span></span></div>
+	    	</div>
+	    </div>
+		<div class="row cl">
+	        <label class="form-label col-2 col-sm-2">&nbsp;</label>
+	        <div class="formControls col-8 col-sm-8">
+	        	<div class="panel panel-secondary">
+	        		<div class="panel-header">发送消息</div>
+	        		<div class="panel-body">
+	            		<textarea class="radius col-12 h100" value="" placeholder="请输入消息" id="messageCon" required="" /></textarea>
+	            	</div>
+	            </div>
+	        </div>
+	   	</div>
+		<div class="row cl">
+	        <label class="form-label col-2 col-sm-2">&nbsp;</label>
+	        <div class="formControls col-8 col-sm-8">
+	        	<div class="panel panel-secondary">
+	        		<div class="panel-header">选择接受消息的群体列表</div>
+					<div class="panel-body">
+						<input type="text" class="input-text radius" value="" autocomplete="off" placeholder="请输入条件1" id="cont1" /><br/>
+						<ul class="group_list" id="groupList"></ul>
+					</div>
+				</div>
+	        </div>
+	   </div>
+	    <div class="row cl">
+	        <div class="col-6 col-sm-6 col-offset-2 col-sm-offset-2">
+	        	<input type="password" class="hide" />
+	            <input type="submit" value="确定" class="btn btn-secondary size-L radius" /> &nbsp; 
+	            <input type="reset" value="取消" class="btn btn-default size-L radius" /> 
+	        </div>
+	    </div>
+	</div>
+</form>
+
+<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="js/H-ui/static/h-ui/js/H-ui.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+$(function(){
+	var ws, sponsor;
+	
+	$("header").load("header.html");
+	
+	//判断是否登录
+	util.postData(0, interfacePath+"user/getUserInfo", null, function(res){
+		if(0 == res.status){
+			alert(res.error);
+			window.location = "login.html?url=sendMessageGroup.html";
+		}else if(-1 == res.status){
+			alert("连接超时，或网络错误！");
+			window.location = "login.html?url=sendMessageGroup.html";
+		}else if("student" == res.data.role){
+			alert("您无权限访问该页面！");
+			window.location = "index.html";
+		}else{
+			$("#teacherMenu").removeClass("hidden");
+			$("#roleDivMov").text(res.data.role);
+			$("#nameDivMov").text(res.data.name);
+			$("header .stu_menu").hide();
+			
+			sponsor = res.data.name;//保存发送者
+			//登录后，以用户id建立socket连接
+			if(window.WebSocket){
+				ws = new WebSocket(socketPath+res.data.id);  
+			  	ws.onopen=function(){  
+			    	console.log('_connect');  
+			  	};  
+				ws.onmessage=function(e){  
+					console.log('_message:');  
+			    	console.log(e.data);  
+			    	$("#receiveMsg").append('<div class="panel panel-primary mgt10">'+
+	'<div class="panel-header">消息</div>'+
+	'<div class="panel-body">'+e.data+'</div>'+
+'</div>');
+				};  
+				ws.onerror=function(err){  
+				    console.log('_error');  
+				    console.log(err);  
+			  	};  
+			  	ws.onclose=function(){  
+			    	console.log('_close');  
+			  	};	
+			}
+			//列出群体列表
+			util.postData(1, interfacePath+"getGroupList", null, function(res){
+				if(1 == res.status){
+					$("#error").closest(".row").addClass("hide");
+					setGroupList(res.data);
+				}else if(0 == res.status){
+					alert(res.error);
+				}else{
+					alert("网络错误，请稍候再试！");
+				}
+			});
+		}
+	});
+	
+	//搜索群体列表
+	$("#cont1").keyup(function(){
+		var cont1 = $(this).val();
+		util.postData(1, interfacePath+"getGroupList", {condition: cont1}, function(res){
+			if(1 == res.status){
+				$("#error").closest(".row").addClass("hide");				
+				setGroupList(res.data);
+			}else if(0 == res.status){
+				alert(res.error);
+			}else{
+				alert("网络错误，请稍候再试！");
+			}
+		});
+		
+		return false;
+	});
+	
+	//选择群体
+	$("#groupList").on("click", "li", function(){
+		$(this).toggleClass("sel");
+	});
+	
+	//确定
+	$("#demoform-1").submit(function(){
+		var result = [];//保存接收消息群组
+		if($("#groupList .sel").length < 1){
+			$("#error").closest(".row").removeClass("hide");
+			$("#error").children("span").text("请选择接收消息群体");
+			return false;
+		}
+		$("#error").closest(".row").addClass("hide");		
+		$("#groupList .sel").each(function(){
+			result.push($(this).data("id"));
+		});
+		var msg = JSON.stringify({sponsor:sponsor,msg:$("#messageCon").val()});
+//		console.log(msg);
+//		console.log(result);
+		//发送消息给指定群组人员
+		util.postData(1, interfacePath+"sendMsg", {
+			msg: msg,
+			groupList: JSON.stringify(result)
+		}, function(res){
+			console.log(res);
+			if(1 == res.status){
+				ws.send(msg);
+			}else if(0 == res.status){
+				alert(res.error);
+			}else{
+				alert("网络错误，请稍候再试！");
+			}
+		});
+		return false;
+	});
+});
+
+var setGroupList = function(data){
+	if(data.length>0){
+		var html = "";
+		$.each(data, function(i, val){
+			var str = "";
+			str = "<li data-id='"+val._id+"'>"+val.groupName+"</li>";
+			html += str;
+		});
+		$("#groupList").html(html);
+		$("#groupList").closest(".row").removeClass("hidden");
+	}else{
+		$("#groupList").closest(".row").addClass("hidden");
+	}
+};
+</script>
+</body>
+</html>
