@@ -184,6 +184,7 @@ app.ws('/ws/:id', function(ws, req) {
         }
     });
 
+    //发送推送消息  
     pushClient.push().setPlatform(JPush.ALL)
       .setAudience(JPush.ALL)
       .setNotification('Hi, JPush', JPush.ios('ios alert', 'happy', 5))
